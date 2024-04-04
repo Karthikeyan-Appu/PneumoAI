@@ -42,11 +42,16 @@ const HomePage = () => {
         return response.json();
       })
       .then((data) => {
-        console.log("Prediction:", data.prediction);
-        setPrediction(data.prediction); // Set prediction in state
+        console.log("Response data:", data);
+        if (data.prediction) {
+          setPrediction(data.prediction); // Set prediction in state
+        } else {
+          throw new Error("Prediction data not found in response");
+        }
       })
       .catch((error) => {
-        console.error("There was a problem with the upload:", error.message);
+        console.error("Error during fetch:", error);
+        setPrediction("Error occurred");
       })
       .finally(() => {
         setUploading(false);
