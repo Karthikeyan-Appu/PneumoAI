@@ -50,9 +50,10 @@ const HomePage = () => {
         }
       })
       .catch((error) => {
-        console.error("Error during fetch:", error);
-        setPrediction("Error occurred");
-      })
+  console.error("Error during fetch:", error);
+  setPrediction("Error occurred: " + error.message); // Update prediction state with error message
+})
+
       .finally(() => {
         setUploading(false);
       });
