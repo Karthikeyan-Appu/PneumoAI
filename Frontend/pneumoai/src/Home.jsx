@@ -7,7 +7,6 @@ const HomePage = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [prediction, setPrediction] = useState(null); // State to store prediction
-  const [showModal, setShowModal] = useState(false); // State to control modal visibility
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -45,7 +44,6 @@ const HomePage = () => {
       .then((data) => {
         console.log("Prediction:", data.prediction);
         setPrediction(data.prediction); // Set prediction in state
-        setShowModal(true); // Show modal with prediction
       })
       .catch((error) => {
         console.error("There was a problem with the upload:", error.message);
@@ -53,10 +51,6 @@ const HomePage = () => {
       .finally(() => {
         setUploading(false);
       });
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
   };
 
   return (
@@ -100,18 +94,15 @@ const HomePage = () => {
           )}
 
           {uploading && <div className="uploading-indicator">Uploading...</div>}
+
+          {prediction && (
+            <div className="prediction-result">
+              <h2>Prediction:</h2>
+              <p>{prediction}</p>
+            </div>
+          )}
         </main>
       </div>
-
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={closeModal}>&times;</span>
-            <h2>Prediction Result</h2>
-            <p>{prediction}</p>
-          </div>
-        </div>
-      )}
     </>
   );
 };
