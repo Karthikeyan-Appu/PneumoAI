@@ -5,13 +5,14 @@ import { MdCloudUpload, MdDelete } from "react-icons/md";
 const HomePage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
-  const [uploading, setUploading] = useState(false); // New state to track upload status
+  const [uploading, setUploading] = useState(false);
+  const [prediction, setPrediction] = useState(null); // State to store prediction
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
 
-    // Read the file and set it as the image source
     const reader = new FileReader();
     reader.onloadend = () => {
       setImageUrl(reader.result);
@@ -22,18 +23,16 @@ const HomePage = () => {
   const handleFileClear = () => {
     setSelectedFile(null);
     setImageUrl(null);
+    setPrediction(null); // Clear prediction when clearing file
   };
 
   const handleUpload = () => {
-    // Send selectedFile to backend for upload
-    // You can use fetch or any other method here to send the image data to the backend
-    // Set uploading state to true while uploading to show loading indicator or disable upload button
     setUploading(true);
 
     const formData = new FormData();
-    formData.append("image", selectedFile);
+    formData.append("file", selectedFile);
 
-    fetch("your-upload-url", {
+    fetch("https://pnemo.onrender.com/predict", {
       method: "POST",
       body: formData,
     })
@@ -41,15 +40,23 @@ const HomePage = () => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        // Handle response, e.g., show success message
-        console.log("Image uploaded successfully");
-        setUploading(false); // Set uploading state back to false
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Prediction:", data.prediction);
+        setPrediction(data.prediction); // Set prediction in state
+        setShowModal(true); // Show modal with prediction
       })
       .catch((error) => {
-        // Handle error, e.g., show error message
         console.error("There was a problem with the upload:", error.message);
-        setUploading(false); // Set uploading state back to false
+      })
+      .finally(() => {
+        setUploading(false);
       });
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
   };
 
   return (
@@ -75,7 +82,6 @@ const HomePage = () => {
 
           {selectedFile && (
             <div className="selected-file">
-              {/* <AiFillFileImage className="file-icon" /> */}
               <span style={{ fontSize: "20px" }}>{selectedFile.name}</span>
               <MdDelete className="delete-icon" onClick={handleFileClear} />
             </div>
@@ -96,6 +102,16 @@ const HomePage = () => {
           {uploading && <div className="uploading-indicator">Uploading...</div>}
         </main>
       </div>
+
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={closeModal}>&times;</span>
+            <h2>Prediction Result</h2>
+            <p>{prediction}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };
